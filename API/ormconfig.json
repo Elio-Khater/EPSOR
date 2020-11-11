@@ -1,0 +1,8 @@
+{
+  "type": "mongodb",
+  "host": "localhost",
+  "database": "epsor",
+  "port": "27017",
+  "synchronize": true,
+  "entities": ["./src/entities/*.ts"]
+}

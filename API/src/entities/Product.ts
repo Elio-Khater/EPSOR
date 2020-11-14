@@ -20,4 +20,7 @@ export class Product extends BaseEntity {
   @Field(() => Int)
   @Column()
   numberInStock: number;
+  @Field()
+  @Column()
+  uuid: string;
 }

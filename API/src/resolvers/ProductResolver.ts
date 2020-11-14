@@ -2,6 +2,7 @@ import { Resolver, Query, Mutation, Arg } from "type-graphql";
 import { Product } from "../entities/Product";
 
 const producer = require("../kafka/producer");
+const topic = "products";
 
 @Resolver() //1
 export class ProductResolver {
@@ -15,6 +16,7 @@ export class ProductResolver {
     @Arg("productName") productName: string, // 2
     @Arg("description") description: string,
     @Arg("price") price: number,
+    @Arg("uuid") uuid: string,
     @Arg("numberInStock") numberInStock: number
   ): Promise<String> {
     const product = Product.create({
@@ -22,10 +24,11 @@ export class ProductResolver {
       productName,
       description,
       price,
+      uuid,
       numberInStock,
     });
     // return await product.save(); // 4
-    producer.produce(product);
-    return "must return uuid";
+    producer.produce(product, topic, product.uuid);
+    return product.uuid;
   }
 }

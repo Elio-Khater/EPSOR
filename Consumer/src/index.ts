@@ -1,20 +1,6 @@
 const startServer = async () => {
-  var Kafka = require("node-rdkafka");
-  const { MongoClient } = require("mongodb");
-  const uri =
-    "mongodb://localhost:27017/?readPreference=primary&appname=MongoDB%20Compass&ssl=false";
-  const client = new MongoClient(uri);
-  const insert = async function (document: any) {
-    try {
-      await client.connect();
-      const database = client.db("epsor");
-      const collection = database.collection("product");
-      const result = await collection.insertOne(document);
-      console.log(result.insertedCount);
-    } finally {
-      await client.close();
-    }
-  };
+  const Kafka = require("node-rdkafka");
+  const { insert } = require("./mongo-helper");
   var stream = Kafka.KafkaConsumer.createReadStream(
     {
       "metadata.broker.list": "localhost:9092",
@@ -43,7 +29,12 @@ const startServer = async () => {
   stream.on("data", function (message: any) {
     console.log("Got message");
     console.log(message.toString());
-    insert(JSON.parse(message.toString()));
+    let inserted = insert(JSON.parse(message.toString()));
+    if (!inserted) {
+      console.log("did not insert the message");
+    } else {
+      console.log("insert success");
+    }
   });
 
   stream.consumer.on("event.error", function (err: any) {

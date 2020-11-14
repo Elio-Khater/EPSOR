@@ -1,5 +1,5 @@
 module.exports = {
-  produce: function (message: any) {
+  produce: function (message: any, topic: String, uuid: string) {
     const Kafka = require("node-rdkafka");
 
     const producer = new Kafka.Producer({
@@ -7,8 +7,6 @@ module.exports = {
       "metadata.broker.list": "localhost:9092",
       dr_cb: true, //delivery report callback
     });
-
-    const topicName = "products";
 
     //logging debug messages, if debug is enabled
     producer.on("event.log", function (log: any) {
@@ -22,7 +20,7 @@ module.exports = {
     });
 
     producer.on("delivery-report", function (err: any, report: any) {
-      console.log("delivery-report: " + JSON.stringify(report));
+      console.log("uuid: ", report.key.toString());
       if (err) {
         console.error(err);
       }
@@ -36,7 +34,7 @@ module.exports = {
 
       // if partition is set to -1, librdkafka will use the default partitioner
       var partition = -1;
-      producer.produce(topicName, partition, value, Date.now());
+      producer.produce(topic, partition, value, uuid);
 
       //need to keep polling for a while to ensure the delivery reports are received
       var pollLoop = setInterval(function () {
